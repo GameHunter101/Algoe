@@ -1,16 +1,15 @@
 use std::ops::Mul;
 
-use num_traits::Float;
 
-use super::bivector::Bivector3;
+use super::bivector::Bivector;
 
 #[derive(Debug)]
 pub struct Rotor3<T> {
     pub scalar: T,
-    pub bivector: Bivector3<T>,
+    // pub bivector: Bivector3<T>,
 }
 
-impl<T: Float> Mul<&[T; 3]> for Rotor3<T> {
+/* impl<T: Float> Mul<&[T; 3]> for Rotor3<T> {
     type Output = [T; 3];
     fn mul(self, rhs: &[T; 3]) -> Self::Output {
         let s_x = rhs[0] * self.scalar + rhs[1] * self.bivector.xy - rhs[2] * self.bivector.zx;
@@ -31,4 +30,4 @@ impl<T: Float> Mul<&[T; 3]> for Rotor3<T> {
 
         [v_x, v_y, v_z]
     }
-}
+} */

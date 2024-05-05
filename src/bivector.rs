@@ -1,41 +1,37 @@
-use std::ops::Mul;
+use std::ops::{Mul, Div};
 
-use num_traits::{zero, Float};
-
-use crate::rotor::Rotor3;
+use crate::{rotor::Rotor3, vector::Vector};
 
 /// Defines a 3D bivector, generic float type
 #[derive(Debug, Clone, Copy)]
-pub struct Bivector3<T> {
-    pub xy: T,
-    pub yz: T,
-    pub zx: T,
+pub struct Bivector<const DIM: usize> {
+    vec_1: Vector<DIM>,
+    vec_2: Vector<DIM>,
 }
 
-impl<T: Float> Bivector3<T> {
+impl<const DIM: usize> Bivector<DIM> {
     // Calculates the magnitude of the current bivector
-    pub fn magnitude(&self) -> T {
-        (self.xy * self.xy + self.yz * self.yz + self.zx * self.zx).sqrt()
+    pub fn magnitude(&self) -> f32 {
+        let angle = self.vec_1.dot(self.vec_2).acos();
+        self.vec_1.magnitude() * self.vec_2.magnitude() * angle.sin()
     }
 
     // Creates a normalized bivector with the same orientation as the current one
     pub fn to_normalized(&self) -> Self {
-        if self.magnitude() == zero() {
-            return Bivector3::<T> {
-                xy: zero(),
-                yz: zero(),
-                zx: zero(),
+        if self.magnitude() == 0.0 {
+            return Bivector {
+                vec_1: Vector::default(),
+                vec_2: Vector::default(),
             };
         }
 
-        Bivector3 {
-            xy: self.xy / self.magnitude(),
-            yz: self.yz / self.magnitude(),
-            zx: self.zx / self.magnitude(),
+        Bivector {
+            vec_1: self.vec_1 / self.magnitude(),
+            vec_2: self.vec_2 / self.magnitude(),
         }
     }
 
-    // Normalizes the current bivector, preserves orientation
+    /* // Normalizes the current bivector, preserves orientation
     pub fn normalize_self(&mut self) {
         if self.magnitude() != zero() {
             self.xy = self.xy / self.magnitude();
@@ -52,16 +48,26 @@ impl<T: Float> Bivector3<T> {
             scalar: self.magnitude().cos(),
             bivector: self.to_normalized() * self.magnitude().sin(),
         }
+    } */
+}
+
+impl<const DIM: usize> Mul<f32> for Bivector<DIM> {
+    type Output = Self;
+    fn mul(self, rhs: f32) -> Self::Output {
+        Bivector {
+            vec_1: self.vec_1 * rhs,
+            vec_2: self.vec_2 * rhs,
+        }
     }
 }
 
-impl<T: Float> Mul<T> for Bivector3<T> {
-    type Output = Bivector3<T>;
-    fn mul(self, rhs: T) -> Self::Output {
-        Bivector3 {
-            xy: rhs * self.xy,
-            yz: rhs * self.yz,
-            zx: rhs * self.zx,
+impl<const DIM: usize> Div<f32> for Bivector<DIM> {
+    type Output = Self;
+    fn div(self, rhs: f32) -> Self::Output {
+        assert_ne!(rhs, 0.0);
+        Bivector {
+            vec_1: self.vec_1 / rhs,
+            vec_2: self.vec_2 / rhs,
         }
     }
 }
