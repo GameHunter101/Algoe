@@ -1,7 +1,9 @@
 [package]
 name = "algoe"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
+generic-array = "1.0.0"
 num-traits = { version = "0.2.19", features = ["libm"] }
+typenum = "1.17.0"

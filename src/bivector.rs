@@ -1,73 +1,80 @@
+#![allow(incomplete_features)]
 use std::ops::{Mul, Div};
 
-use crate::{rotor::Rotor3, vector::Vector};
+use crate::rotor::Rotor3;
 
+// type t = Sum<P4, P4>;
 /// Defines a 3D bivector, generic float type
 #[derive(Debug, Clone, Copy)]
-pub struct Bivector<const DIM: usize> {
-    vec_1: Vector<DIM>,
-    vec_2: Vector<DIM>,
+pub struct Bivector {
+    pub xy: f32,
+    pub yz: f32,
+    pub zx: f32,
 }
 
-impl<const DIM: usize> Bivector<DIM> {
+impl Bivector {
     // Calculates the magnitude of the current bivector
     pub fn magnitude(&self) -> f32 {
-        let angle = self.vec_1.dot(self.vec_2).acos();
-        self.vec_1.magnitude() * self.vec_2.magnitude() * angle.sin()
+        f32::sqrt(self.xy * self.xy + self.yz * self.yz + self.zx * self.zx)
     }
 
     // Creates a normalized bivector with the same orientation as the current one
     pub fn to_normalized(&self) -> Self {
         if self.magnitude() == 0.0 {
             return Bivector {
-                vec_1: Vector::default(),
-                vec_2: Vector::default(),
+                xy: 0.0,
+                yz: 0.0,
+                zx: 0.0,
             };
         }
 
         Bivector {
-            vec_1: self.vec_1 / self.magnitude(),
-            vec_2: self.vec_2 / self.magnitude(),
+            xy: self.xy / self.magnitude(),
+            yz: self.yz / self.magnitude(),
+            zx: self.zx / self.magnitude(),
         }
     }
 
-    /* // Normalizes the current bivector, preserves orientation
+    // Normalizes the current bivector, preserves orientation
     pub fn normalize_self(&mut self) {
-        if self.magnitude() != zero() {
-            self.xy = self.xy / self.magnitude();
-            self.yz = self.yz / self.magnitude();
-            self.zx = self.zx / self.magnitude();
+        if self.magnitude() == 0.0 {
+            return;
         }
+        self.xy /= self.magnitude();
+        self.yz /= self.magnitude();
+        self.zx /= self.magnitude();
     }
 
     /// Creates a rotor out of the bivector using exponentiation.
     ///
     /// ```e^ix = sin(x)+i*sin(x)```
-    pub fn exponentiate(&self) -> Rotor3<T> {
+    pub fn exponentiate(&self) -> Rotor3 {
         Rotor3 {
             scalar: self.magnitude().cos(),
             bivector: self.to_normalized() * self.magnitude().sin(),
         }
-    } */
+    }
 }
 
-impl<const DIM: usize> Mul<f32> for Bivector<DIM> {
+impl Mul<f32> for Bivector {
     type Output = Self;
     fn mul(self, rhs: f32) -> Self::Output {
         Bivector {
-            vec_1: self.vec_1 * rhs,
-            vec_2: self.vec_2 * rhs,
+            xy: self.xy * rhs,
+            yz: self.yz * rhs,
+            zx: self.zx * rhs,
         }
     }
 }
 
-impl<const DIM: usize> Div<f32> for Bivector<DIM> {
+impl Div<f32> for Bivector {
     type Output = Self;
     fn div(self, rhs: f32) -> Self::Output {
         assert_ne!(rhs, 0.0);
         Bivector {
-            vec_1: self.vec_1 / rhs,
-            vec_2: self.vec_2 / rhs,
+            xy: self.xy / rhs,
+            yz: self.yz / rhs,
+            zx: self.zx / rhs,
         }
     }
 }

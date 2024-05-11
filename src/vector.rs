@@ -32,7 +32,7 @@ impl<const DIM: usize> Vector<DIM> {
         }
     }
 
-    pub fn dot(&self, rhs: Self) -> f32 {
+    pub fn dot(&self, rhs: &Self) -> f32 {
         let mut sum: f32 = 0.0;
         for i in 0..DIM {
             sum += self.data[i] * rhs.data[i];
@@ -52,6 +52,26 @@ impl<const DIM: usize> Mul<f32> for Vector<DIM> {
 
 impl<const DIM: usize> Div<f32> for Vector<DIM> {
     type Output = Self;
+    fn div(self, rhs: f32) -> Self::Output {
+        assert_ne!(rhs, 0.0);
+
+        Vector {
+            data: self.data.map(|e| e / rhs),
+        }
+    }
+}
+
+impl<const DIM: usize> Mul<f32> for &Vector<DIM> {
+    type Output = Vector<DIM>;
+    fn mul(self, rhs: f32) -> Self::Output {
+        Vector {
+            data: self.data.map(|e| e * rhs),
+        }
+    }
+}
+
+impl<const DIM: usize> Div<f32> for &Vector<DIM> {
+    type Output = Vector<DIM>;
     fn div(self, rhs: f32) -> Self::Output {
         assert_ne!(rhs, 0.0);
 
