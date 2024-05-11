@@ -2,10 +2,16 @@ use std::ops::Mul;
 
 use super::bivector::Bivector;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Rotor3 {
     pub scalar: f32,
     pub bivector: Bivector,
+}
+
+impl Rotor3 {
+    pub fn new(scalar: f32, bivector: Bivector) -> Self {
+        Self { scalar, bivector }
+    }
 }
 
 impl Mul<&[f32; 3]> for Rotor3 {

@@ -1,11 +1,10 @@
 #![allow(incomplete_features)]
-use std::ops::{Mul, Div};
+use std::ops::{Div, Mul};
 
 use crate::rotor::Rotor3;
 
-// type t = Sum<P4, P4>;
 /// Defines a 3D bivector, generic float type
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Bivector {
     pub xy: f32,
     pub yz: f32,
@@ -13,6 +12,10 @@ pub struct Bivector {
 }
 
 impl Bivector {
+    pub fn new(xy: f32, yz: f32, zx: f32) -> Self {
+        Self { xy, yz, zx }
+    }
+
     // Calculates the magnitude of the current bivector
     pub fn magnitude(&self) -> f32 {
         f32::sqrt(self.xy * self.xy + self.yz * self.yz + self.zx * self.zx)
