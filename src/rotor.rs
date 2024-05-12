@@ -2,7 +2,7 @@ use std::ops::Mul;
 
 use super::bivector::Bivector;
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy)]
 pub struct Rotor3 {
     pub scalar: f32,
     pub bivector: Bivector,
@@ -14,6 +14,15 @@ impl Rotor3 {
     }
 }
 
+impl Default for Rotor3 {
+    fn default() -> Self {
+        Self {
+            scalar: 1.0,
+            bivector: Bivector::default(),
+        }
+    }
+}
+
 impl Mul<&[f32; 3]> for Rotor3 {
     type Output = [f32; 3];
     fn mul(self, rhs: &[f32; 3]) -> Self::Output {
@@ -21,7 +30,7 @@ impl Mul<&[f32; 3]> for Rotor3 {
         let s_y = rhs[1] * self.scalar - rhs[0] * self.bivector.xy + rhs[2] * self.bivector.yz;
         let s_z = rhs[2] * self.scalar - rhs[1] * self.bivector.yz + rhs[0] * self.bivector.zx;
         let s_xyz =
-            rhs[0] * self.bivector.yz + rhs[1] * self.bivector.zx - rhs[2] * self.bivector.xy;
+            rhs[0] * self.bivector.yz + rhs[1] * self.bivector.zx + rhs[2] * self.bivector.xy;
 
         let v_x = s_x * self.scalar + s_y * self.bivector.xy - s_z * self.bivector.zx
             + s_xyz * self.bivector.yz;
@@ -74,15 +83,11 @@ mod test {
     use crate::bivector::Bivector;
     use std::f32::consts;
 
-    fn comp_float(mut lhs: f32, mut rhs: f32) {
-        let diff = (lhs - rhs).abs();
-        lhs = lhs.abs();
-        rhs = rhs.abs();
+    use super::Rotor3;
 
-        let largest = if rhs > lhs { rhs } else { lhs };
-
-        dbg!(diff, largest * std::f32::EPSILON);
-        assert!(diff <= largest * std::f32::EPSILON);
+    fn comp_float(lhs: f32, rhs: f32) {
+        let diff = (lhs.abs() - rhs.abs()).abs();
+        assert!(diff <= 10.0_f32.powi(-6));
     }
 
     fn comp_vec(lhs: &[f32; 3], rhs: &[f32; 3]) {
@@ -117,5 +122,17 @@ mod test {
         dbg!(rotated_vec, theoretical_vec);
 
         comp_vec(&rotated_vec, &theoretical_vec);
+    }
+
+    #[test]
+    fn testing_zero_rotor() {
+        let vec = [1.0, 3.0, 109.0];
+        let rotor = Rotor3::default();
+
+        let rotated_vec = rotor * &vec;
+
+        dbg!(rotor, rotated_vec);
+
+        comp_vec(&rotated_vec, &vec);
     }
 }
