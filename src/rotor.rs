@@ -40,23 +40,23 @@ impl Mul<&[f32; 3]> for Rotor3 {
 impl Mul<Rotor3> for Rotor3 {
     type Output = Rotor3;
     fn mul(self, rhs: Rotor3) -> Self::Output {
-        let s_0 = rhs.scalar * self.scalar
-            - rhs.bivector.xy * self.bivector.xy
-            - rhs.bivector.yz * self.bivector.yz
-            - rhs.bivector.zx * self.bivector.zx;
+        let s_0 = self.scalar * rhs.scalar
+            - self.bivector.xy * rhs.bivector.xy
+            - self.bivector.yz * rhs.bivector.yz
+            - self.bivector.zx * rhs.bivector.zx;
 
-        let s_xy = -(rhs.scalar * self.bivector.xy
-            + rhs.bivector.xy * self.scalar
-            + rhs.bivector.yz * self.bivector.zx
-            - rhs.bivector.zx * self.bivector.yz);
+        let s_xy = self.scalar * rhs.bivector.xy + self.bivector.xy * rhs.scalar
+            - self.bivector.yz * rhs.bivector.zx
+            + self.bivector.zx * rhs.bivector.yz;
 
-        let s_yz = -(rhs.scalar * self.bivector.yz - rhs.bivector.xy * self.bivector.zx
-            + rhs.bivector.yz * self.scalar
-            + rhs.bivector.zx * self.bivector.xy);
+        let s_yz = self.scalar * rhs.bivector.yz
+            + self.bivector.xy * rhs.bivector.zx
+            + self.bivector.yz * rhs.scalar
+            - self.bivector.zx * rhs.bivector.xy;
 
-        let s_zx = -(rhs.scalar * self.bivector.zx + rhs.bivector.xy * self.bivector.yz
-            - rhs.bivector.yz * self.bivector.xy
-            + rhs.bivector.zx * self.scalar);
+        let s_zx = self.scalar * rhs.bivector.zx - self.bivector.xy * rhs.bivector.yz
+            + self.bivector.yz * rhs.bivector.xy
+            + self.bivector.zx * rhs.scalar;
 
         Rotor3 {
             scalar: s_0,
@@ -66,5 +66,56 @@ impl Mul<Rotor3> for Rotor3 {
                 zx: s_zx,
             },
         }
+    }
+}
+
+mod test {
+    #![allow(unused)]
+    use crate::bivector::Bivector;
+    use std::f32::consts;
+
+    fn comp_float(mut lhs: f32, mut rhs: f32) {
+        let diff = (lhs - rhs).abs();
+        lhs = lhs.abs();
+        rhs = rhs.abs();
+
+        let largest = if rhs > lhs { rhs } else { lhs };
+
+        dbg!(diff, largest * std::f32::EPSILON);
+        assert!(diff <= largest * std::f32::EPSILON);
+    }
+
+    fn comp_vec(lhs: &[f32; 3], rhs: &[f32; 3]) {
+        for i in 0..3 {
+            comp_float(lhs[i], rhs[i]);
+        }
+    }
+
+    #[test]
+    fn test_vector_rotation() {
+        let vec = [1.0, 0.0, 0.0];
+        let rotor = (Bivector::new(1.0, 0.0, 0.0) * -consts::FRAC_PI_8).exponentiate();
+
+        let theoretical_vec = [consts::SQRT_2 / 2.0, consts::SQRT_2 / 2.0, 0.0];
+
+        let rotated_vec = rotor * &vec;
+
+        comp_vec(&rotated_vec, &theoretical_vec);
+    }
+
+    #[test]
+    fn test_rotor_rotation() {
+        let vec = [1.0, 0.0, 0.0];
+        let rotor = (Bivector::new(1.0, 0.0, 0.0) * -consts::FRAC_PI_8).exponentiate();
+
+        let rotated = rotor * rotor;
+
+        let theoretical_vec = [0.0, 1.0, 0.0];
+
+        let rotated_vec = rotated * &vec;
+
+        dbg!(rotated_vec, theoretical_vec);
+
+        comp_vec(&rotated_vec, &theoretical_vec);
     }
 }
