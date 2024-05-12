@@ -2,7 +2,7 @@ use nalgebra::Vector3;
 
 use crate::{bivector::Bivector, rotor::Rotor3};
 
-trait GeometricOperations {
+pub trait GeometricOperations {
     fn wedge(&self, rhs: &Self) -> Bivector;
     fn dot(&self, rhs: &Self) -> f32;
     fn geometric(&self, rhs: &Self) -> Rotor3;
