@@ -11,8 +11,8 @@ pub trait GeometricOperations {
 impl GeometricOperations for Vector3<f32> {
     fn wedge(&self, rhs: &Self) -> Bivector {
         let xy = self.x * rhs.y - self.y * rhs.x;
-        let yz = self.z * rhs.x - self.x * rhs.z;
-        let zx = self.y * rhs.z - self.z * rhs.y;
+        let yz = self.y * rhs.z - self.z * rhs.y;
+        let zx = self.z * rhs.x - self.x * rhs.z;
 
         Bivector { xy, yz, zx }
     }
