@@ -1,4 +1,3 @@
-#![allow(incomplete_features)]
 use std::ops::{Div, Mul};
 
 use crate::rotor::Rotor3;
