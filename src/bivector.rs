@@ -15,9 +15,13 @@ impl Bivector {
         Self { xy, yz, zx }
     }
 
+    pub fn magnitude_squared(&self) -> f32 {
+        self.xy * self.xy + self.yz * self.yz + self.zx * self.zx
+    }
+
     // Calculates the magnitude of the current bivector
     pub fn magnitude(&self) -> f32 {
-        f32::sqrt(self.xy * self.xy + self.yz * self.yz + self.zx * self.zx)
+        self.magnitude_squared().sqrt()
     }
 
     // Creates a normalized bivector with the same orientation as the current one

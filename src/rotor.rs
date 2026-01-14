@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use std::ops::{Div, Mul};
 
 use nalgebra::Vector3;
 
@@ -13,6 +13,18 @@ pub struct Rotor3 {
 impl Rotor3 {
     pub fn new(scalar: f32, bivector: Bivector) -> Self {
         Self { scalar, bivector }
+    }
+
+    pub fn magnitude_squared(&self) -> f32 {
+        self.scalar * self.scalar + self.bivector.magnitude_squared()
+    }
+
+    pub fn magnitude(&self) -> f32 {
+        self.magnitude_squared().sqrt()
+    }
+
+    pub fn normalize(&self) -> Self {
+        *self / self.magnitude()
     }
 }
 
@@ -76,6 +88,16 @@ impl Mul<Rotor3> for Rotor3 {
                 yz: s_yz,
                 zx: s_zx,
             },
+        }
+    }
+}
+
+impl Div<f32> for Rotor3 {
+    type Output = Rotor3;
+    fn div(self, rhs: f32) -> Self::Output {
+        Self {
+            scalar: self.scalar / rhs,
+            bivector: self.bivector / rhs,
         }
     }
 }
